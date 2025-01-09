@@ -19,17 +19,18 @@ def initRankList(teams, initialElo=1500):
     return res
 
 def getElo(teams, team):
+    return teams.get(team, 1500)
+    """
     for teamName, elo in teams.items():
         if teamName == team:
             return elo
-
+    """
+   
 def updateTable(teams, homeTeam, homeElo, awayTeam, awayElo):
-    for teamName in teams.keys():
-        if teamName == homeTeam:
-            teams[homeTeam] = homeElo
-        elif teamName == awayTeam:
-            teams[awayTeam] = awayElo
+    teams[homeTeam] = homeElo
+    teams[awayTeam] = awayElo
     return teams
+    
 
 def eloEngine():
     teams = initRankList(unique_teams)
@@ -40,9 +41,19 @@ def eloEngine():
         awayRes = row.away_result
         newHomeElo, newAwayElo = updateRating(homeElo, homeRes, awayElo, awayRes)
         teams = updateTable(teams, row.home_team, newHomeElo, row.away_team, newAwayElo)
-    print(teams)
- 
-eloEngine()
+    return teams
+
+def main():
+    data = eloEngine()
+    output_df = pd.DataFrame.from_dict(data, orient='index', columns=['Current Elo'])
+    output_df.reset_index(inplace=True)
+    output_df.rename(columns={'index': 'Team'}, inplace=True)
+
+    output_df.to_csv('src/outputs/output_df.csv', index=False)
+
+main()
+
+
 
 
 
