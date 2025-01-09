@@ -1,8 +1,6 @@
 import pandas as pd
 import numpy as np
-
 from main import eloEngine
-
 # Mock data for testing purposes
 mock_data = [
     {'home_team': 'Team A', 'away_team': 'Team B', 'home_result': 1, 'away_result': 0},  # Team A wins
@@ -20,7 +18,7 @@ unique_teams = np.unique(df[['home_team', 'away_team']])
 def runTests():
     print("Running Elo Engine Test...\n")
     teams_final_ratings = eloEngine()
-    teams_final_ratings.to_csv('tests/test.csv', index=False)
+    print(teams_final_ratings)
     
 
 runTests()
