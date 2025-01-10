@@ -29,6 +29,14 @@ def getWinner(homeGoal, awayGoal):
 processed_df[['home_result', 'away_result']] = processed_df.apply(
     lambda row: pd.Series(getWinner(row['home_score'], row['away_score'])), axis=1)
 
+processed_df['home_current_elo'] = processed_df.apply(
+    lambda row: 0, axis=1
+)
+
+processed_df['away_current_elo'] = processed_df.apply(
+    lambda row: 0, axis=1
+)
+
 #store the processed data in the data folder
 processed_df.to_csv('data/processed/processed_results.csv', index=False)
 
