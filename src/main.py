@@ -68,12 +68,25 @@ def eloEngine():
 
 def main():
     data = eloEngine()
-    output_df = pd.DataFrame.from_dict(data, orient='index', columns=['Current Elo'])
-    output_df.reset_index(inplace=True)
-    output_df.rename(columns={'index': 'Team'}, inplace=True)
+    currElo = []
+    peakElo = []
+    gamesPlayed = []
+
+    output_df = pd.DataFrame(unique_teams, columns=['Team'])
+
+    for datum, val in data.items():
+        currElo.append(val.currElo)
+        peakElo.append(val.peakElo)
+        gamesPlayed.append(val.gamesPlayed)
+    output_df['Current_Elo'] = currElo
+    output_df['Peak_Elo'] = peakElo
+    output_df['Games_Played'] = gamesPlayed
+
+
 
     output_df.to_csv('src/outputs/CondensedData_df.csv', index=False)
     df.to_csv('src/outputs/EloOverTime_df.csv', index=False)
+    
 
 main()
 
