@@ -2,6 +2,17 @@ import pandas as pd
 import numpy as np
 from utils.elo import updateRating
 
+class Team():
+    def __init__(self, currElo, peakElo, gamesPlayed):
+        self.currElo = currElo
+        self.peakElo = peakElo
+        self.gamesPlayed = gamesPlayed
+    
+    def update(self, newElo):
+        self.currElo = newElo
+        self.peakElo = max(self.peakElo, newElo)
+        self.gamesPlayed += 1
+
 #todo
 #read processed data
 #store unique countries in dict with an initial rating
@@ -12,53 +23,46 @@ df = pd.read_csv('data/processed/processed_results.csv')
 
 unique_teams = np.unique(df[['home_team', 'away_team']])
 
+
 def initRankList(teams, initialElo=1500):
-    res = {}
-    for team in teams:
-        res[team] = initialElo
-    return res
+    return {team: Team(initialElo, initialElo, 0) for team in teams}
+
 
 def getElo(teams, team):
-    return teams.get(team, 1500)
-    """
-    for teamName, elo in teams.items():
-        if teamName == team:
-            return elo
-    """
-   
+    return teams[team].currElo
+
+
 def updateTable(teams, homeTeam, homeElo, awayTeam, awayElo):
     teams[homeTeam] = homeElo
     teams[awayTeam] = awayElo
 
     return teams
-    
+
 
 def eloEngine():
     teams = initRankList(unique_teams)
-    home_elos = []  # List to hold updated home Elo values
-    away_elos = []  # List to hold updated away Elo values
-    
-    # Iterate through the dataframe, calculating new Elo scores
+    home_elos = [] 
+    away_elos = [] 
+
     for row in df.itertuples():
+
         homeElo = getElo(teams, row.home_team)
         awayElo = getElo(teams, row.away_team)
+  
         homeRes = row.home_result
         awayRes = row.away_result
+       
         newHomeElo, newAwayElo = updateRating(homeElo, homeRes, awayElo, awayRes)
-        
-        # Append the new Elo values for later assignment
+
+        teams[row.home_team].update(newHomeElo)
+        teams[row.away_team].update(newAwayElo)
+
         home_elos.append(newHomeElo)
         away_elos.append(newAwayElo)
-        
-        # Update the teams dictionary in memory
-        teams[row.home_team] = newHomeElo
-        teams[row.away_team] = newAwayElo
 
-    # Assign the new Elo values to the DataFrame at once
     df['home_current_elo'] = home_elos
     df['away_current_elo'] = away_elos
 
-    print(df.head(5))
     return teams
 
 
@@ -68,10 +72,10 @@ def main():
     output_df.reset_index(inplace=True)
     output_df.rename(columns={'index': 'Team'}, inplace=True)
 
-    output_df.to_csv('src/outputs/output_df.csv', index=False)
+    output_df.to_csv('src/outputs/CondensedData_df.csv', index=False)
+    df.to_csv('src/outputs/EloOverTime_df.csv', index=False)
 
 main()
-
 
 
 
